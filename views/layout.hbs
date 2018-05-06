@@ -1,0 +1,29 @@
+</html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Maps</title>
+    <link rel="stylesheet" href="./stylesheets/map-icons.css">
+    <link rel="stylesheet" href="./stylesheets/style.css">
+  </head>
+    <body>
+
+    <div id="map"></div>
+      <div id='floating-panel'>
+        <strong>Start: </strong>
+          <select id="start">
+            <option id='myLocation' selected>My Location</option>
+          </select>
+        <strong>End: </strong>
+        <div><input id="end" type="text" readonly/></div>
+        <div id='notify'></div>
+      </div>
+
+    </body>
+</html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2WraBku8-rUkGgRojCLPu68o546DtulY&libraries=places&callback=initMap" async defer></script>
+<script src="./directions.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
