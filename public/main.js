@@ -15,9 +15,10 @@ const generateMarkerPosition = (position)=>{
   }
 }
 
-const generateNotification = (text) =>{
+const generateNotification = (text,count) =>{
   return {
     text,
+    count: count-1,
     createdAt: moment() // default to the current date {not formatted yet}
   }
 }
@@ -29,4 +30,11 @@ const generatePlace = (place) =>{
   }
 }
 
-module.exports = { generateLocation, generateMarkerPosition, generateNotification, generatePlace };
+const generateCount = (count)=>{
+
+  return{
+    count: count,
+    createdAt: moment() // default to the current date {not formatted yet}
+  }
+}
+module.exports = { generateLocation, generateMarkerPosition, generateNotification, generatePlace, generateCount };

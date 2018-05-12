@@ -2,22 +2,35 @@
 
 const socket = io();
 
-socket.on('connect',()=> {
+socket.on('connect',() =>{
   console.log('connected, i\'m a client-side.');
 });
 
-socket.on('notification', (text)=>{
-  console.log(text);
+socket.on('notification', (result)=>{
+  console.log(result);
+  document.getElementById('notify').innerHTML = `${result.text}`
+  setInterval(()=>document.getElementById('notify').innerHTML = null, 3000) // notify the user that there's another user is connected right now.
+})
+
+socket.on('UsersLength', (result)=>{
+  document.getElementById('count').innerHTML = `${result.count}`
 })
 
 socket.on('disconnect', ()=>{
   console.log('User disconnected.',Marker2);
+  document.getElementById('count').innerHTML = `${result.count-1}`
 });
 
-socket.on('userPlace', (result)=> console.log('socket',result.place));
+socket.on('userPlace', (result)=>
+  {
+    console.log(result.place);
+    document.getElementById('place_status').innerHTML = `Friend Location<br/>${result.place}`;
+  }
+);
 
 let map;
 
+// make the functions global so the API link can reach them.
 function initMap() {}
 function calcRoute() {}
 
@@ -62,6 +75,7 @@ if (navigator.geolocation) {
       lng: position.coords.longitude
     };
 
+
     socket.emit('location', {lng: pos.lng, lat: pos.lat}); // send the {lng,lat} to determine the location of the user for the other user.
 
     socket.on('userLoc', (loc)=>{ // generate the other user marker using his location. (lat,lng).
@@ -74,9 +88,8 @@ if (navigator.geolocation) {
           icon: "https://maps.google.com/mapfiles/kml/shapes/parking_lot_maps.png", // a parking place icon.
           id: 'marker2'
         });
+
     });
-
-
 
     infoWindow.setPosition(pos);
     map.setCenter(pos);
@@ -105,24 +118,19 @@ function CenterControl(controlDiv, map, center) {
             draggable:true,
             id: 'marker'
       });
-      
+
+
       document.getElementById('myLocation').value = marker.position.toString().replace(/[()]/g, ''); // set "My Location" (start point) to the marker's position.
+      console.log("your current location ", marker.position)
 
       socket.on("setMarkerPosition", (position)=>{
-        const markerPos = position.lng.position;
+        const markerPos = position.lng;
         const lat = markerPos.lat.toString().replace(/[()]/g, '');
         const lng = markerPos.lng.toString().replace(/[()]/g, '');
-        const Geocoder = new google.maps.Geocoder();
         
         console.log("Marker position :", markerPos);
 
           Marker2.setPosition(markerPos);
-          
-          Geocoder.geocode({'location':markerPos}, (results)=>{
-              console.log('im triggered'); // formatted address for the user's location {El-Tahrir Square, Qasr Ad Dobarah, Qasr an Nile, Cairo Governorate, Egypt}
-              socket.emit('place', {place: results[0].formatted_address});
-          });
-
           document.getElementById('end').value = `${lat},${lng}`; // set the direction to the other user location by {lat,lng}
           DirectionsRoute(); // trigger the Direction Service
       });
@@ -143,7 +151,6 @@ function CenterControl(controlDiv, map, center) {
       goCenterText.id = 'goCenterText';
       goCenterText.innerHTML = 'My location';
       goCenterUI.appendChild(goCenterText);
-
 
       // Set up the click event listener for 'My location': Set the center of
       // the map
@@ -168,9 +175,16 @@ function CenterControl(controlDiv, map, center) {
           let newCenter = map.getCenter();
           control.setCenter(marker.position); // set the location to the marker's position.
 
-          socket.emit('MarkerPosition', {position:marker.position}); // send marker's current position to the server {other user connected}.
+          socket.emit('MarkerPosition', marker.position); // send marker's current position to the server {other user connected}.
 
           document.getElementById('myLocation').value = marker.position.toString().replace(/[()]/g, ''); // convert the number to string then remove the '()' using regex.
+          const Geocoder = new google.maps.Geocoder();
+
+          Geocoder.geocode({'location':marker.position}, (results)=>{
+            document.getElementById('myLocationString').innerHTML = `Your Location<br/>${results[0].formatted_address}`;
+            console.log(results[0].formatted_address); // formatted address for the user's location {El-Tahrir Square, Qasr Ad Dobarah, Qasr an Nile, Cairo Governorate, Egypt}
+            // socket.emit('place', {place: results[0].formatted_address});
+          });
 
           if(document.getElementById("end").value !== "") { // prevent the directions service to run if the "end point" is not provided.
             DirectionsRoute(); // re trigger the directions function when the user changes his location manually.

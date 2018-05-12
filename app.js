@@ -14,7 +14,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
 
-const {generateLocation, generateMarkerPosition, generateNotification, generatePlace} = require('./public/main');
+const {generateLocation, generateMarkerPosition, generateNotification, generatePlace, generateCount} = require('./public/main');
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -30,6 +30,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 
+  var NodeGeocoder = require('node-geocoder');
+  
+  var options = {
+    provider: 'google',
+  
+    // Optional depending on the providers
+    httpAdapter: 'https', // Default
+    apiKey: 'AIzaSyD2WraBku8-rUkGgRojCLPu68o546DtulY', // for Mapquest, OpenCage, Google Premier
+    formatter: null         // 'gpx', 'string', ...
+  };
+  
+  var geocoder = NodeGeocoder(options);
+  
+
 
 io.on('connection', (socket) =>{
   console.log('connected , i\'m server-side.');
@@ -40,12 +54,24 @@ io.on('connection', (socket) =>{
 
   socket.broadcast.emit('notification', generateNotification('a new user is connected!'));
 
+  io.of('/').clients((error, clients) => {
+    if (error) throw error;
+    console.log(clients.length); // => [PZDoMHjiu8PYfRiKAAAF, Anw2LatarvGVVXEIAAAD]
+    io.emit('UsersLength', generateCount(clients.length)); // number of clients connected.
+  });
+
+
   socket.on('place', (place) =>{
-    io.emit('userPlace', generatePlace(place)); // console log the sender location to both sides.
   });
   
   socket.on('MarkerPosition',(position)=>{
     socket.broadcast.emit("setMarkerPosition", generateLocation(position)); // generate a new marker position for other users except the sender.
+      // Using callback
+      console.log(position)
+      geocoder.reverse({lat:position.lat, lon:position.lng}, function(err, res) {
+        console.log(res);
+        socket.broadcast.emit('userPlace', generatePlace(res[0].formattedAddress)); //  displays the sender's location to the other user.
+      });
   });
 
 });
