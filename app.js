@@ -1,20 +1,23 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-const http = require('http');
+const express      = require('express'),
+      path         = require('path'),
+      favicon      = require('serve-favicon'),
+      logger       = require('morgan'),
+      cookieParser = require('cookie-parser'),
+      bodyParser   = require('body-parser'),
+      http         = require('http'),
 
-var index = require('./routes/index');
-var users = require('./routes/users');
+      index = require('./routes/index'),
+      users = require('./routes/users'),
 
-const socketIO = require('socket.io');
-const app = express();
-const server = http.createServer(app);
-const io = socketIO(server);
+      socketIO = require('socket.io'),
+      app = express(),
+      server = http.createServer(app),
+      io = socketIO(server),
 
-const {generateLocation, generateMarkerPosition, generateNotification, generatePlace, generateCount} = require('./public/main');
+      NodeGeocoder = require('node-geocoder'), // fetch user location
+
+      {generateLocation, generateMarkerPosition, generateNotification, generatePlace, generateCount} = require('./public/javascripts/generateFunctions');
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
@@ -30,19 +33,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 app.use('/users', users);
 
-  var NodeGeocoder = require('node-geocoder');
   
-  var options = {
-    provider: 'google',
-  
-    // Optional depending on the providers
-    httpAdapter: 'https', // Default
-    apiKey: 'AIzaSyD2WraBku8-rUkGgRojCLPu68o546DtulY', // for Mapquest, OpenCage, Google Premier
-    formatter: null         // 'gpx', 'string', ...
-  };
-  
-  var geocoder = NodeGeocoder(options);
-  
+const options = {
+  provider: 'google',
+  // Optional depending on the providers
+  httpAdapter: 'https', // Default
+  apiKey: process.env.API_KEY || 'AIzaSyD2WraBku8-rUkGgRojCLPu68o546DtulY', // for Mapquest, OpenCage, Google Premier
+  formatter: null         // 'gpx', 'string', ...
+};
+
+const geocoder = NodeGeocoder(options);
 
 
 io.on('connection', (socket) =>{
@@ -82,7 +82,7 @@ server.listen(4000, ()=>{
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+  const err = new Error('Not Found');
   err.status = 404;
   next(err);
 });

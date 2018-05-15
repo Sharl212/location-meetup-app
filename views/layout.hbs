@@ -9,7 +9,10 @@
   </head>
     <body>
 
-    <div id="map"></div>
+    <div id="map">
+    </div>
+        <div id="places_nearby">Your friend is nearby "كارفور المعادي"</div>      
+    
       <div id='floating-panel'>
         <strong>Start: </strong>
           <select id="start">
@@ -22,10 +25,14 @@
         <div id='count'></div>
         <div id='myLocationString'></div>
       </div>
+      
     </body>
 </html>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD2WraBku8-rUkGgRojCLPu68o546DtulY&libraries=places&callback=initMap" async defer></script>
-<script src="./directions.js"></script>
+<script src="./javascripts/directions.js"></script>
+<script src="./javascripts/socket.io.js"></script>
+<script src="./javascripts/CentralControl.js"></script>
+<script src="./javascripts/Routing.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
