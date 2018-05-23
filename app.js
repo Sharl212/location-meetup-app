@@ -61,8 +61,8 @@ io.on('connection', (socket) =>{
   });
 
 
-  socket.on('place', (place) =>{
-  });
+  // socket.on('place', (place) =>{
+  // });
   
   socket.on('MarkerPosition',(position)=>{
     socket.broadcast.emit("setMarkerPosition", generateLocation(position)); // generate a new marker position for other users except the sender.
@@ -76,8 +76,8 @@ io.on('connection', (socket) =>{
 
 });
 
-server.listen(4000, ()=>{
-  console.log('server is up on 4000');
+server.listen(process.env.PORT || 4000, ()=>{
+  console.log('server is up');
 });
 
 // catch 404 and forward to error handler
